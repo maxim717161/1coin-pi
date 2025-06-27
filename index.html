@@ -102,8 +102,9 @@
       document.getElementById('bank').innerText = `Банк: ${bank.toFixed(2)} Pi`;
       const maxFrac = dynamicMaxPayoutFraction(bank);
       const maxWin = maxFrac * bank;
+      const percentOfBank = (maxWin / bank) * 100;
       document.getElementById('maxWin').innerText = `Макс. выигрыш: ${maxWin.toFixed(2)} Pi`;
-      document.getElementById('progressBar').style.width = `${(maxFrac / 0.5) * 100}%`;
+      document.getElementById('progressBar').style.width = `${Math.min(percentOfBank, 100)}%`;
     }
 
     function play() {
