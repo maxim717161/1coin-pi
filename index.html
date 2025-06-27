@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1coin.pi</title>
+  <style>
+    :root {
+      --bg-light: #f9f9f9;
+      --bg-dark: #121212;
+      --text-light: #000000;
+      --text-dark: #ffffff;
+      --accent: #ff9500;
+    }
+    body {
+      font-family: sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+      padding: 2rem;
+    }
+    .dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .bank-info {
+      margin-bottom: 1rem;
+    }
+    .progress {
+      background: #ddd;
+      height: 16px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-inner {
+      background: var(--accent);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .history {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>1coin.pi</h1>
+    <button onclick="toggleTheme()">🌗 Тема</button>
+  </header>
+
+  <div class="bank-info">
+    <p id="bank">Банк: 100 Pi</p>
+    <p id="maxWin">Макс. выигрыш: -</p>
+    <div class="progress"><div class="progress-inner" id="progressBar"></div></div>
+  </div>
+
+  <button onclick="play()">Сыграть за 1 Pi</button>
+  <p id="result"></p>
+
+  <div class="history">
+    <h3>История:</h3>
+    <ul id="history"></ul>
+  </div>
+
+  <script>
+    let bank = 100;
+    let history = [];
+
+    function dynamicMaxPayoutFraction(bank) {
+      return 0.5 * Math.pow(100 / bank, 0.3);
+    }
+
+    function betaSample(alpha, beta) {
+      const gamma = x => {
+        let d = x < 1 ? x + 1 : x;
+        let s = 1;
+        for (let i = 1; i < d; i++) s *= Math.random();
+        return -Math.log(s);
+      };
+      const x = gamma(0.05);
+      const y = gamma(9);
+      return x / (x + y);
+    }
+
+    function updateUI() {
+      document.getElementById('bank').innerText = `Банк: ${bank.toFixed(2)} Pi`;
+      const maxFrac = dynamicMaxPayoutFraction(bank);
+      const maxWin = maxFrac * bank;
+      document.getElementById('maxWin').innerText = `Макс. выигрыш: ${maxWin.toFixed(2)} Pi`;
+      document.getElementById('progressBar').style.width = `${(maxFrac / 0.5) * 100}%`;
+    }
+
+    function play() {
+      bank += 1;
+      if (Math.random() < 0.2) {
+        const maxFrac = dynamicMaxPayoutFraction(bank);
+        const beta = betaSample(0.05, 9);
+        let payout = 1 + beta * (maxFrac * bank - 1);
+        payout = Math.min(payout, bank);
+        bank -= payout;
+        document.getElementById('result').innerText = `🎉 Вы выиграли ${payout.toFixed(2)} Pi!`;
+        history.unshift(`+${payout.toFixed(2)} Pi`);
+      } else {
+        document.getElementById('result').innerText = `😢 Увы, вы не выиграли.`;
+        history.unshift(`−1 Pi`);
+      }
+      history = history.slice(0, 5);
+      document.getElementById('history').innerHTML = history.map(h => `<li>${h}</li>`).join('');
+      updateUI();
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
