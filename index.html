@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>1coin.pi</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     :root {
       --bg-light: #f9f9f9;
@@ -108,32 +107,7 @@
       document.getElementById('progressBar').style.width = `${Math.min(percentOfBank, 100)}%`;
     }
 
-    async function play() {
-      const Pi = window.Pi;
-
-      if (!Pi) {
-        alert("Pi SDK недоступен");
-        return;
-      }
-
-      try {
-        const payment = await Pi.createPayment({
-          amount: 1,
-          memo: "1coin.pi лотерея",
-          metadata: { type: "lottery" }
-        });
-
-        if (payment && payment.txid) {
-          runLottery();
-        } else {
-          alert("Платёж не прошёл");
-        }
-      } catch (err) {
-        console.error("Ошибка при платеже:", err);
-      }
-    }
-
-    function runLottery() {
+    function play() {
       bank += 1;
       if (Math.random() < 0.2) {
         const maxFrac = dynamicMaxPayoutFraction(bank);
